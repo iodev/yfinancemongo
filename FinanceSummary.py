@@ -15,9 +15,9 @@ except ImportError:
 
 def getKeys(symbol,args):
     doc = getDoc(symbol)
-    if len(argsinfo) > 0 and argsinfo[0] in doc['data'].keys():
-        data = recurseItem(doc['data'],argsinfo,0)
-        if isinstance(data,dict()):
+    if len(args) > 0 and args[0] in doc['data'].keys():
+        data = recurseItem(doc['data'],args,0)
+        if isinstance(data,dict):
             return data.keys()
         else:
             return {}

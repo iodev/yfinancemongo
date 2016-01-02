@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-open SYM, "../Symbols.csv" or die; 
+open SYM, "Symbols.csv" or die; 
 open LST, ".lastDownloadSym";
 @lst = <LST>;
 close LST;

@@ -1,0 +1,34 @@
+https://query1.finance.yahoo.com/v10/finance/quoteSummary/CNNX?formatted=true&crumb=PUgrfiU145z&lang=en-US&region=US&modules=price%2CsummaryDetail&corsDomain=beta.finance.yahoo.com
+https://query2.finance.yahoo.com/v7/finance/chart/CNNX?range=5d&interval=5m&indicators=quote&includeTimestamps=true&includePrePost=false&corsDomain=beta.finance.yahoo.com
+https://query2.finance.yahoo.com/v10/finance/quoteSummary/CNNX?formatted=true&crumb=PUgrfiU145z&lang=en-US&region=US&modules=summaryProfile%2CfinancialData%2CrecommendationTrend%2CupgradeDowngradeHistory%2Cearnings%2Cprice%2CsummaryDetail%2CdefaultKeyStatistics%2CcalendarEvents&corsDomain=beta.finance.yahoo.com
+https://query1.finance.yahoo.com/v2/finance/news?lang=en-US&region=US&sizelabels=streamItem%2Cthumb&widths=190%2C75&heights=111%2C75&symbols=CNNX&tags=news%2Cvideo&corsDomain=beta.finance.yahoo.com
+https://query1.finance.yahoo.com/v7/finance/quote?formatted=true&crumb=PUgrfiU145z&lang=en-US&region=US&symbols=CNNX%2CICON%2CCBK%2CM%2CSUNE&fields=longName%2CshortName%2CregularMarketPrice%2CregularMarketChange%2CregularMarketChangePercent%2CregularMarketVolume%2Cuuid&corsDomain=beta.finance.yahoo.com
+https://query1.finance.yahoo.com/v10/finance/quoteSummary/CNNX?formatted=true&crumb=PUgrfiU145z&lang=en-US&region=US&modules=assetProfile%2CsecFilings&corsDomain=beta.finance.yahoo.com
+https://query2.finance.yahoo.com/v10/finance/quoteSummary/CNNX?formatted=true&crumb=PUgrfiU145z&lang=en-US&region=US&modules=incomeStatementHistory%2CcashflowStatementHistory%2CbalanceSheetHistory%2CincomeStatementHistoryQuarterly%2CcashflowStatementHistoryQuarterly%2CbalanceSheetHistoryQuarterly&corsDomain=beta.finance.yahoo.com
+https://query2.finance.yahoo.com/v10/finance/quoteSummary/CNNX?formatted=true&crumb=PUgrfiU145z&lang=en-US&region=US&modules=earningsHistory%2CearningsTrend%2CindustryTrend&corsDomain=beta.finance.yahoo.com
+
+
+site for symbols download link:  http://www.cboe.com/TradTool/Symbols/SymbolDirectory.aspx
+last download link:  http://www.cboe.com/publish/scheduledtask/mktdata/cboesymboldir2.csv
+after download: tail -$((`wc -l <cboesymboldir2.csv` - 2)) >Symbols.csv
+
+apt-get install -y mongodb-org
+ran downloadAll.pl, slowly, to not overwhelm Yahoo server.  
+
+installed pymongo
+installed scikit-neuralnetwork
+
+Example usage:
+
+>>> import FinanceSummary
+>>> FinanceSummary.getKeys('SUNE',[])
+[u'summaryProfile', u'financialData', u'defaultKeyStatistics', u'price', u'earnings', u'calendarEvents', u'upgradeDowngradeHistory', u'summaryDetail', u'recommendationTrend']
+>>> FinanceSummary.getKeys('SUNE',['summaryDetail'])
+[u'payoutRatio', u'dayHigh', u'priceToSalesTrailing12Months', u'navPrice', u'averageVolume', u'trailingPE', u'previousClose', u'exDividendDate', u'totalAssets', u'open', u'regularMarketDayHigh', u'fiveYearAvgDividendYield', u'regularMarketVolume', u'averageVolume10days', u'dividendRate', u'forwardPE', u'fiftyDayAverage', u'regularMarketDayLow', u'fiftyTwoWeekLow', u'bid', u'dividendYield', u'volume', u'beta', u'trailingAnnualDividendRate', u'ask', u'bidSize', u'ytdReturn', u'openInterest', u'regularMarketPreviousClose', u'strikePrice', u'expireDate', u'averageDailyVolume10Day', u'twoHundredDayAverage', u'askSize', u'yield', u'fiftyTwoWeekHigh', u'regularMarketOpen', u'dayLow', u'trailingAnnualDividendYield', u'marketCap']
+>>> FinanceSummary.getKeys('SUNE',['summaryDetail','dayLow'])
+[u'raw', u'fmt']
+>>> FinanceSummary.getItem('SUNE',['summaryDetail','dayLow','raw'])
+4.84
+>>> FinanceSummary.getKeys('SUNE',['summaryDetail','dayLow','raw'])
+{}
+
