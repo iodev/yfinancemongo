@@ -15,8 +15,9 @@ after download: tail -$((`wc -l <cboesymboldir2.csv` - 2)) >Symbols.csv
 apt-get install -y mongodb-org
 ran downloadAll.pl, slowly, to not overwhelm Yahoo server.  
 
-installed pymongo
-installed scikit-neuralnetwork
+apt-get install -y python-scipy
+pip install pymongo
+pip install scikit-neuralnetwork
 
 Example usage:
 
