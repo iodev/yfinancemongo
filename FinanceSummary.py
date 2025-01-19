@@ -1,17 +1,16 @@
 import json
 import argparse
-from pymongo import MongoClient
 from pprint import pprint
+from pymongo import MongoClient
+import boto3
+from botocore.exceptions import ClientError
 
-try:
-  # py3
-  from urllib.request import Request, urlopen
-  from urllib.parse import urlencode
-except ImportError:
-  # py2
-  from urllib2 import Request, urlopen
-  from urllib import urlencode
 
+from urllib.request import Request, urlopen
+from urllib.parse import urlencode
+
+
+dynamodb = boto3.resource('dynamodb')
 
 def getKeys(symbol,args):
     doc = getDoc(symbol)
@@ -38,21 +37,19 @@ def main_example():
   args = parser.parse_args()
   pprintItem(args.symbol,args.info)
 
-def getHistoryDoc(symbol,forceRefresh=0):
-  client = MongoClient()
-  db = client.finance
-  coll = db['history']
-  doc = json.loads('{}') 
-  try:
-      if forceRefresh:
-          refreshHistory(symbol)
-      # allowing exception because haven't figured out how to get the first element of the cursor-object returned by find
-      doc = coll.find({'symbol': symbol})[0]
-  except:
-      # get it if not forceRefresh and didn't find it in db
-      refreshHistory(symbol)
-      doc = coll.find({'symbol': symbol})[0]
-  return doc
+def getHistoryDoc(symbol, forceRefresh=0):
+    table = dynamodb.Table('stock-price')
+    try:
+        if forceRefresh:
+            refreshHistory(symbol)
+        response = table.get_item(Key={'symbol': symbol})
+        return response.get('Item', {})
+    except ClientError as e:
+      print(f"An error occurred: {e.response['Error']['Message']}")
+    except Exception as e:
+        print(f"Error fetching history for {symbol}: {e}")
+        refreshHistory(symbol)
+        return table.get_item(Key={'symbol': symbol}).get('Item', {})
 
 def getTrendDoc(symbol,forceRefresh=0):
   client = MongoClient()
@@ -71,10 +68,9 @@ def getTrendDoc(symbol,forceRefresh=0):
   return doc
 
 def getDoc(symbol):
-  client = MongoClient()
-  db = client.finance
-  coll = db['summary']
-  return coll.find({'symbol': symbol})[0]
+    table = dynamodb.Table('summary')
+    response = table.get_item(Key={'symbol': symbol})
+    return response.get('Item', {})
 
 def getItem(symbol,argsinfo):
   doc = getDoc(symbol)
@@ -135,16 +131,16 @@ def _request(symbol):
   return result
 
 def refreshHistory(symbol):
-  result = _requestHistory(symbol)
-  # pprint(result)
-  client = MongoClient()
-  db = client.finance
-  coll = db['history']
-  if 'symbol' in result.keys():
-     print("Inserting symbol=%s" % symbol)
-     coll.replace_one({'symbol': symbol},result,upsert=True)
-  else:
-     print("Error getting symbol=%s" % symbol)
+    result = _requestHistory(symbol)
+    table = dynamodb.Table('history')
+    try:
+      if 'symbol' in result.keys():
+          print(f"Inserting symbol={symbol}")
+          table.put_item(Item=result)
+      else:
+          print(f"Error getting symbol={symbol}")
+    except ClientError as e:
+      print(f"An error occurred: {e.response['Error']['Message']}")
 
 def refreshTrend(symbol):
   result = _requestTrend(symbol)
@@ -159,15 +155,15 @@ def refreshTrend(symbol):
      print("Error getting symbol=%s" % symbol)
 
 def refreshDb(symbol):
-  result = _request(symbol)
-  # pprint(result)
-  client = MongoClient()
-  db = client.finance
-  coll = db['summary']
-  if 'symbol' in result.keys():
-     print("Inserting symbol=%s" % symbol)
-     coll.replace_one({'symbol': symbol},result,upsert=True)
-  else:
-     print("Error getting symbol=%s" % symbol)
+    result = _request(symbol)
+    table = dynamodb.Table('stock-fundamentals')
+    try:
+      if 'symbol' in result.keys():
+          print(f"Inserting symbol={symbol}")
+          table.put_item(Item=result)
+      else:
+          print(f"Error getting symbol={symbol}")
+    except ClientError as e:
+      print(f"An error occurred: {e.response['Error']['Message']}")
 
 

@@ -10,11 +10,17 @@ def evalItem(doc):
      return (off52wkBy50pct and priceLtBook and peForwBackRatio and peWasLt10 and excludeOil)
 
 def main():
+    # TODO: add the monthly download of the Symbols.csv file from https://www.cboe.com/us/options/symboldir/?download=csv
+    # load the symbols and send them thru getItem
     with open('Symbols.csv','r') as f:
+        # data is quoted strings, comma-delimited, 4 columns
         for line in iter(f.readline, ''):
-            sym = line.split("\t")[1]
+            # if line is header, skip
+            if line.startswith("Company"): # header = 'Company Name, Stock Symbol, DPM Name, Post/Station'
+                continue
+            sym = line.split('","')[1]
             sym = sym.rstrip("\n\r\f")
-            #print(sym)
+            print(sym)
             try:
                 doc = FinanceSummary.getItem(sym,[])
                 if evalItem(doc):
