@@ -8,7 +8,9 @@ dependencies = [
     "beautifulsoup4>=4.12.3",
     "boto3>=1.36.2",
     "pymongo>=4.10.1",
+    "requests-cache>=1.2.1",
     "requests>=2.32.3",
     "scipy>=1.15.1",
     "yfinance>=0.2.52",
+    "requests-ratelimiter>=0.7.0",
 ]
